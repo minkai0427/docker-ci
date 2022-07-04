@@ -1,0 +1,16 @@
+FROM centos:7
+
+RUN yum install -y sudo tar wget openssh-server openssh-clients openssl openssl-devel epel-release
+RUN yum install -y gedit
+
+RUN sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config \
+    && echo "root:admin" | chpasswd \
+    && useradd -u 1000 admin \
+    && echo "admin:admin" | chpasswd \
+    && echo "admin ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
+    && ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key \
+    && ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key \
+    && mkdir /var/run/sshd
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]
